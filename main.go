@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	Token   = "OTQ4MTUwMjgyMjk3MTQ3NDQy.Yh3nww.niTx5XXHehmYkZFr-8m0lulvkkk"
+	Token   = ""
 	Session *discordgo.Session
 )
 
