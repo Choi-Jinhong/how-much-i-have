@@ -23,7 +23,7 @@ type Body struct {
 }
 
 var (
-	Token    = "OTQ4MTUwMjgyMjk3MTQ3NDQy.Yh3nww.KP9XLoX4JFiDEBWJ-tmnyAl4bWI"
+	Token    = ""
 	Session  *discordgo.Session
 	body     Body
 	balanace []Balance
