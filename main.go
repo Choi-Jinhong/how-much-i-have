@@ -2,19 +2,31 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
-	"reflect"
+	"strconv"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-resty/resty/v2"
 )
 
+type Balance struct {
+	Denom  string
+	Amount string
+}
+
+type Body struct {
+	Height string
+	Result []Balance
+}
+
 var (
-	Token   = ""
-	Session *discordgo.Session
+	Token    = "OTQ4MTUwMjgyMjk3MTQ3NDQy.Yh3nww.KP9XLoX4JFiDEBWJ-tmnyAl4bWI"
+	Session  *discordgo.Session
+	body     Body
+	balanace []Balance
 )
 
 func init() {
@@ -48,11 +60,9 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 		return
 	}
 
-	if message.Content == "!HowMuchIHave" {
-		resp := checkBalance()
-
-		fmt.Printf("\nResponse Body: %v", resp)
-		session.ChannelMessageSend(message.ChannelID, resp)
+	if message.Content == "!Osmosis" {
+		result := checkOsmosis()
+		session.ChannelMessageSend(message.ChannelID, result)
 	}
 
 	if message.Content == "!pong" {
@@ -60,15 +70,27 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 }
 
-func checkBalance() string {
-	client := resty.New()
-	resp, err := client.R().
-		SetHeader("x-allthatnode-api-key", "chjUxhz3pahoppe9DF06MLCebipgi2b7").
-		Get("https://osmosis-mainnet-rpc.allthatnode.com:1317/bank/balances/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc")
-	fmt.Printf("\nERROR: %v", err)
+func checkOsmosis() string {
+	req, err := http.NewRequest("GET", "https://osmosis-mainnet-rpc.allthatnode.com:1317/bank/balances/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc", nil)
+	if err != nil {
+		// handle err
+	}
+	req.Header.Add("x-allthatnode-api-key", "chjUxhz3pahoppe9DF06MLCebipgi2b7")
 
-	body := resp.String()
-	json.Unmarshal([]byte(str), &body)
-	fmt.Printf("%v", reflect.TypeOf(body))
-	return body
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		// handle err
+	}
+	defer resp.Body.Close()
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	result := string(bytes)
+
+	json.Unmarshal([]byte(result), &body)
+	balance, err := strconv.Atoi(body.Result[4].Amount)
+	if err != nil {
+		// handle err
+	}
+
+	return strconv.Itoa(balance)
 }
