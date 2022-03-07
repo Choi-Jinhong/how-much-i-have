@@ -9,7 +9,9 @@ import (
 	"os/signal"
 	"strconv"
 
+	"github.com/Choi-Jinhong/how-much-i-have/configuration"
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 type Balance struct {
@@ -17,21 +19,39 @@ type Balance struct {
 	Amount string
 }
 
+type Delegation struct {
+	Delegator_address string
+	Validator_address string
+	Shares            string
+}
+
+type Staking struct {
+	Delegation Delegation
+	Balance    Balance
+}
+
 type Body struct {
 	Height string
 	Result []Balance
 }
 
+type StakingBody struct {
+	Height string
+	Result []Staking
+}
+
 var (
-	Token    = ""
-	Session  *discordgo.Session
-	body     Body
-	balanace []Balance
+	Session       *discordgo.Session
+	body          Body
+	stakingBody   StakingBody
+	OsmosisApiKey string
 )
 
 func init() {
+	setRuntimeConfig()
 	var err error
-	Session, err = discordgo.New("Bot " + Token)
+	OsmosisApiKey = configuration.RuntimeConf.Api.OsmosisApiKey
+	Session, err = discordgo.New("Bot " + configuration.RuntimeConf.Discord.BotToken)
 	if err != nil {
 		log.Fatalf("클라이언트 생성 오류: %v", err)
 	}
@@ -61,7 +81,7 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 
 	if message.Content == "!Osmosis" {
-		result := checkOsmosis()
+		result := checkBalance()
 		session.ChannelMessageSend(message.ChannelID, result)
 	}
 
@@ -70,27 +90,67 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 }
 
-func checkOsmosis() string {
-	req, err := http.NewRequest("GET", "https://osmosis-mainnet-rpc.allthatnode.com:1317/bank/balances/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc", nil)
+func setRuntimeConfig() {
+	viper.AddConfigPath(".")
+	viper.SetConfigName("local")
+	viper.SetConfigType("yaml")
+	err := viper.ReadInConfig()
 	if err != nil {
-		// handle err
+		panic(err)
 	}
-	req.Header.Add("x-allthatnode-api-key", "chjUxhz3pahoppe9DF06MLCebipgi2b7")
-
-	resp, err := http.DefaultClient.Do(req)
+	err = viper.Unmarshal(&configuration.RuntimeConf)
 	if err != nil {
-		// handle err
+		panic(err)
 	}
-	defer resp.Body.Close()
-
-	bytes, err := ioutil.ReadAll(resp.Body)
-	result := string(bytes)
-
-	json.Unmarshal([]byte(result), &body)
-	balance, err := strconv.Atoi(body.Result[4].Amount)
-	if err != nil {
-		// handle err
-	}
-
-	return strconv.Itoa(balance)
 }
+
+func curlCosmos(url string, apiKey string, types string) int {
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Add("x-allthatnode-api-key", apiKey)
+	if err != nil {
+		// handle err
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		// handle err
+	}
+
+	defer res.Body.Close()
+	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		// handle err
+	}
+
+	resp := string(bytes)
+	var tokens int
+
+	if types == "rest" {
+		json.Unmarshal([]byte(resp), &body)
+		tokens, err = strconv.Atoi(body.Result[len(body.Result)-1].Amount)
+	} else if types == "staking" {
+		json.Unmarshal([]byte(resp), &stakingBody)
+		tokens, err = strconv.Atoi(stakingBody.Result[len(stakingBody.Result)-1].Balance.Amount)
+	}
+	if err != nil {
+		// handle err
+	}
+	return tokens
+}
+
+func checkBalance() string {
+	//OsmosisUrl := configuration.RuntimeConf.Api.OsmosisUrl
+
+	// Request how many I have tokens.
+	restTokens := curlCosmos("https://osmosis-mainnet-rpc.allthatnode.com:1317/bank/balances/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc", OsmosisApiKey, "rest")
+
+	// Request how many I staking in this chain.
+	stakingTokens := curlCosmos("https://osmosis-mainnet-rpc.allthatnode.com:1317/staking/delegators/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc/delegations", OsmosisApiKey, "staking")
+
+	totalBalance := float64(restTokens+stakingTokens) / 1000000
+	return strconv.FormatFloat(totalBalance, 'f', -1, 32)
+}
+
+//func checkCoingecko() int64 {
+//
+//}
