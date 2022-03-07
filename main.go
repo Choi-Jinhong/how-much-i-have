@@ -312,7 +312,6 @@ var (
 )
 
 func init() {
-	checkCoingecko()
 	setRuntimeConfig()
 	var err error
 	OsmosisApiKey = configuration.RuntimeConf.Api.OsmosisApiKey
@@ -346,7 +345,12 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 
 	if message.Content == "!Osmosis" {
-		result := checkBalance()
+		balance := checkBalance()
+		krw := checkCoingecko()
+		fmt.Printf("BALANCE: %f \n", balance)
+		fmt.Printf("KRW: %f \n", krw)
+		fmt.Printf("Osmosis price: %f \n", balance*krw)
+		result := strconv.FormatFloat(balance*krw, 'f', -1, 32) // return string
 		session.ChannelMessageSend(message.ChannelID, result)
 	}
 
@@ -403,7 +407,7 @@ func curlCosmos(url string, apiKey string, types string) int {
 	return tokens
 }
 
-func checkBalance() string {
+func checkBalance() float64 {
 	//OsmosisUrl := configuration.RuntimeConf.Api.OsmosisUrl
 
 	// Request how many I have tokens.
@@ -413,10 +417,11 @@ func checkBalance() string {
 	stakingTokens := curlCosmos("https://osmosis-mainnet-rpc.allthatnode.com:1317/staking/delegators/osmo13fla7v859d3sqrff2afx84mnc7grumtsa3hllc/delegations", OsmosisApiKey, "staking")
 
 	totalBalance := float64(restTokens+stakingTokens) / 1000000
-	return strconv.FormatFloat(totalBalance, 'f', -1, 32)
+	//return strconv.FormatFloat(totalBalance, 'f', -1, 32) // return string
+	return totalBalance
 }
 
-func checkCoingecko() {
+func checkCoingecko() float64 {
 	req, err := http.NewRequest("GET", "https://api.coingecko.com/api/v3/coins/osmosis/history?date=27-02-2022", nil)
 	if err != nil {
 		// handle err
@@ -437,5 +442,5 @@ func checkCoingecko() {
 
 	json.Unmarshal([]byte(resp), &coinGekco)
 	krw := coinGekco.MarketData.CurrentPrice.Krw
-	fmt.Printf("KRW: %v \n", krw)
+	return krw
 }
