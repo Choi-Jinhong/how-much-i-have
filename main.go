@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,272 +42,21 @@ type StakingBody struct {
 }
 
 // Check coingecko struct
-type CoinGekco struct {
-	ID                  string              `json:"id"`
-	Symbol              string              `json:"symbol"`
-	Name                string              `json:"name"`
-	Localization        Localization        `json:"localization"`
-	Image               Image               `json:"image"`
-	MarketData          MarketData          `json:"market_data"`
-	CommunityData       CommunityData       `json:"community_data"`
-	DeveloperData       DeveloperData       `json:"developer_data"`
-	PublicInterestStats PublicInterestStats `json:"public_interest_stats"`
+
+type Coingecko struct {
+	Osmosis Osmosis
 }
-type Localization struct {
-	En   string `json:"en"`
-	De   string `json:"de"`
-	Es   string `json:"es"`
-	Fr   string `json:"fr"`
-	It   string `json:"it"`
-	Pl   string `json:"pl"`
-	Ro   string `json:"ro"`
-	Hu   string `json:"hu"`
-	Nl   string `json:"nl"`
-	Pt   string `json:"pt"`
-	Sv   string `json:"sv"`
-	Vi   string `json:"vi"`
-	Tr   string `json:"tr"`
-	Ru   string `json:"ru"`
-	Ja   string `json:"ja"`
-	Zh   string `json:"zh"`
-	ZhTw string `json:"zh-tw"`
-	Ko   string `json:"ko"`
-	Ar   string `json:"ar"`
-	Th   string `json:"th"`
-	ID   string `json:"id"`
-}
-type Image struct {
-	Thumb string `json:"thumb"`
-	Small string `json:"small"`
-}
-type CurrentPrice struct {
-	Aed  float64 `json:"aed"`
-	Ars  float64 `json:"ars"`
-	Aud  float64 `json:"aud"`
-	Bch  float64 `json:"bch"`
-	Bdt  float64 `json:"bdt"`
-	Bhd  float64 `json:"bhd"`
-	Bmd  float64 `json:"bmd"`
-	Bnb  float64 `json:"bnb"`
-	Brl  float64 `json:"brl"`
-	Btc  float64 `json:"btc"`
-	Cad  float64 `json:"cad"`
-	Chf  float64 `json:"chf"`
-	Clp  float64 `json:"clp"`
-	Cny  float64 `json:"cny"`
-	Czk  float64 `json:"czk"`
-	Dkk  float64 `json:"dkk"`
-	Dot  float64 `json:"dot"`
-	Eos  float64 `json:"eos"`
-	Eth  float64 `json:"eth"`
-	Eur  float64 `json:"eur"`
-	Gbp  float64 `json:"gbp"`
-	Hkd  float64 `json:"hkd"`
-	Huf  float64 `json:"huf"`
-	Idr  float64 `json:"idr"`
-	Ils  float64 `json:"ils"`
-	Inr  float64 `json:"inr"`
-	Jpy  float64 `json:"jpy"`
-	Krw  float64 `json:"krw"`
-	Kwd  float64 `json:"kwd"`
-	Lkr  float64 `json:"lkr"`
-	Ltc  float64 `json:"ltc"`
-	Mmk  float64 `json:"mmk"`
-	Mxn  float64 `json:"mxn"`
-	Myr  float64 `json:"myr"`
-	Ngn  float64 `json:"ngn"`
-	Nok  float64 `json:"nok"`
-	Nzd  float64 `json:"nzd"`
-	Php  float64 `json:"php"`
-	Pkr  float64 `json:"pkr"`
-	Pln  float64 `json:"pln"`
-	Rub  float64 `json:"rub"`
-	Sar  float64 `json:"sar"`
-	Sek  float64 `json:"sek"`
-	Sgd  float64 `json:"sgd"`
-	Thb  float64 `json:"thb"`
-	Try  float64 `json:"try"`
-	Twd  float64 `json:"twd"`
-	Uah  float64 `json:"uah"`
-	Usd  float64 `json:"usd"`
-	Vef  float64 `json:"vef"`
-	Vnd  float64 `json:"vnd"`
-	Xag  float64 `json:"xag"`
-	Xau  float64 `json:"xau"`
-	Xdr  float64 `json:"xdr"`
-	Xlm  float64 `json:"xlm"`
-	Xrp  float64 `json:"xrp"`
-	Yfi  float64 `json:"yfi"`
-	Zar  float64 `json:"zar"`
-	Bits float64 `json:"bits"`
-	Link float64 `json:"link"`
-	Sats float64 `json:"sats"`
-}
-type MarketCap struct {
-	Aed  float64 `json:"aed"`
-	Ars  float64 `json:"ars"`
-	Aud  float64 `json:"aud"`
-	Bch  float64 `json:"bch"`
-	Bdt  float64 `json:"bdt"`
-	Bhd  float64 `json:"bhd"`
-	Bmd  float64 `json:"bmd"`
-	Bnb  float64 `json:"bnb"`
-	Brl  float64 `json:"brl"`
-	Btc  float64 `json:"btc"`
-	Cad  float64 `json:"cad"`
-	Chf  float64 `json:"chf"`
-	Clp  float64 `json:"clp"`
-	Cny  float64 `json:"cny"`
-	Czk  float64 `json:"czk"`
-	Dkk  float64 `json:"dkk"`
-	Dot  float64 `json:"dot"`
-	Eos  float64 `json:"eos"`
-	Eth  float64 `json:"eth"`
-	Eur  float64 `json:"eur"`
-	Gbp  float64 `json:"gbp"`
-	Hkd  float64 `json:"hkd"`
-	Huf  float64 `json:"huf"`
-	Idr  float64 `json:"idr"`
-	Ils  float64 `json:"ils"`
-	Inr  float64 `json:"inr"`
-	Jpy  float64 `json:"jpy"`
-	Krw  float64 `json:"krw"`
-	Kwd  float64 `json:"kwd"`
-	Lkr  float64 `json:"lkr"`
-	Ltc  float64 `json:"ltc"`
-	Mmk  float64 `json:"mmk"`
-	Mxn  float64 `json:"mxn"`
-	Myr  float64 `json:"myr"`
-	Ngn  float64 `json:"ngn"`
-	Nok  float64 `json:"nok"`
-	Nzd  float64 `json:"nzd"`
-	Php  float64 `json:"php"`
-	Pkr  float64 `json:"pkr"`
-	Pln  float64 `json:"pln"`
-	Rub  float64 `json:"rub"`
-	Sar  float64 `json:"sar"`
-	Sek  float64 `json:"sek"`
-	Sgd  float64 `json:"sgd"`
-	Thb  float64 `json:"thb"`
-	Try  float64 `json:"try"`
-	Twd  float64 `json:"twd"`
-	Uah  float64 `json:"uah"`
-	Usd  float64 `json:"usd"`
-	Vef  float64 `json:"vef"`
-	Vnd  float64 `json:"vnd"`
-	Xag  float64 `json:"xag"`
-	Xau  float64 `json:"xau"`
-	Xdr  float64 `json:"xdr"`
-	Xlm  float64 `json:"xlm"`
-	Xrp  float64 `json:"xrp"`
-	Yfi  float64 `json:"yfi"`
-	Zar  float64 `json:"zar"`
-	Bits float64 `json:"bits"`
-	Link float64 `json:"link"`
-	Sats float64 `json:"sats"`
-}
-type TotalVolume struct {
-	Aed  float64 `json:"aed"`
-	Ars  float64 `json:"ars"`
-	Aud  float64 `json:"aud"`
-	Bch  float64 `json:"bch"`
-	Bdt  float64 `json:"bdt"`
-	Bhd  float64 `json:"bhd"`
-	Bmd  float64 `json:"bmd"`
-	Bnb  float64 `json:"bnb"`
-	Brl  float64 `json:"brl"`
-	Btc  float64 `json:"btc"`
-	Cad  float64 `json:"cad"`
-	Chf  float64 `json:"chf"`
-	Clp  float64 `json:"clp"`
-	Cny  float64 `json:"cny"`
-	Czk  float64 `json:"czk"`
-	Dkk  float64 `json:"dkk"`
-	Dot  float64 `json:"dot"`
-	Eos  float64 `json:"eos"`
-	Eth  float64 `json:"eth"`
-	Eur  float64 `json:"eur"`
-	Gbp  float64 `json:"gbp"`
-	Hkd  float64 `json:"hkd"`
-	Huf  float64 `json:"huf"`
-	Idr  float64 `json:"idr"`
-	Ils  float64 `json:"ils"`
-	Inr  float64 `json:"inr"`
-	Jpy  float64 `json:"jpy"`
-	Krw  float64 `json:"krw"`
-	Kwd  float64 `json:"kwd"`
-	Lkr  float64 `json:"lkr"`
-	Ltc  float64 `json:"ltc"`
-	Mmk  float64 `json:"mmk"`
-	Mxn  float64 `json:"mxn"`
-	Myr  float64 `json:"myr"`
-	Ngn  float64 `json:"ngn"`
-	Nok  float64 `json:"nok"`
-	Nzd  float64 `json:"nzd"`
-	Php  float64 `json:"php"`
-	Pkr  float64 `json:"pkr"`
-	Pln  float64 `json:"pln"`
-	Rub  float64 `json:"rub"`
-	Sar  float64 `json:"sar"`
-	Sek  float64 `json:"sek"`
-	Sgd  float64 `json:"sgd"`
-	Thb  float64 `json:"thb"`
-	Try  float64 `json:"try"`
-	Twd  float64 `json:"twd"`
-	Uah  float64 `json:"uah"`
-	Usd  float64 `json:"usd"`
-	Vef  float64 `json:"vef"`
-	Vnd  float64 `json:"vnd"`
-	Xag  float64 `json:"xag"`
-	Xau  float64 `json:"xau"`
-	Xdr  float64 `json:"xdr"`
-	Xlm  float64 `json:"xlm"`
-	Xrp  float64 `json:"xrp"`
-	Yfi  float64 `json:"yfi"`
-	Zar  float64 `json:"zar"`
-	Bits float64 `json:"bits"`
-	Link float64 `json:"link"`
-	Sats float64 `json:"sats"`
-}
-type MarketData struct {
-	CurrentPrice CurrentPrice `json:"current_price"`
-	MarketCap    MarketCap    `json:"market_cap"`
-	TotalVolume  TotalVolume  `json:"total_volume"`
-}
-type CommunityData struct {
-	FacebookLikes            interface{} `json:"facebook_likes"`
-	TwitterFollowers         interface{} `json:"twitter_followers"`
-	RedditAveragePosts48H    float64     `json:"reddit_average_posts_48h"`
-	RedditAverageComments48H float64     `json:"reddit_average_comments_48h"`
-	RedditSubscribers        interface{} `json:"reddit_subscribers"`
-	RedditAccountsActive48H  interface{} `json:"reddit_accounts_active_48h"`
-}
-type CodeAdditionsDeletions4Weeks struct {
-	Additions int `json:"additions"`
-	Deletions int `json:"deletions"`
-}
-type DeveloperData struct {
-	Forks                        int                          `json:"forks"`
-	Stars                        int                          `json:"stars"`
-	Subscribers                  int                          `json:"subscribers"`
-	TotalIssues                  int                          `json:"total_issues"`
-	ClosedIssues                 int                          `json:"closed_issues"`
-	PullRequestsMerged           int                          `json:"pull_requests_merged"`
-	PullRequestContributors      int                          `json:"pull_request_contributors"`
-	CodeAdditionsDeletions4Weeks CodeAdditionsDeletions4Weeks `json:"code_additions_deletions_4_weeks"`
-	CommitCount4Weeks            int                          `json:"commit_count_4_weeks"`
-}
-type PublicInterestStats struct {
-	AlexaRank   int         `json:"alexa_rank"`
-	BingMatches interface{} `json:"bing_matches"`
+
+type Osmosis struct {
+	Krw float64
 }
 
 var (
 	Session       *discordgo.Session
 	body          Body
 	stakingBody   StakingBody
-	coinGekco     CoinGekco
 	OsmosisApiKey string
+	coingecko     Coingecko
 )
 
 func init() {
@@ -347,9 +95,6 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	if message.Content == "!Osmosis" {
 		balance := checkBalance()
 		krw := checkCoingecko()
-		fmt.Printf("BALANCE: %f \n", balance)
-		fmt.Printf("KRW: %f \n", krw)
-		fmt.Printf("Osmosis price: %f \n", balance*krw)
 		result := strconv.FormatFloat(balance*krw, 'f', -1, 32) // return string
 		session.ChannelMessageSend(message.ChannelID, result)
 	}
@@ -422,7 +167,7 @@ func checkBalance() float64 {
 }
 
 func checkCoingecko() float64 {
-	req, err := http.NewRequest("GET", "https://api.coingecko.com/api/v3/coins/osmosis/history?date=27-02-2022", nil)
+	req, err := http.NewRequest("GET", "https://api.coingecko.com/api/v3/simple/price?ids=osmosis&vs_currencies=krw", nil)
 	if err != nil {
 		// handle err
 	}
@@ -440,7 +185,7 @@ func checkCoingecko() float64 {
 
 	resp := string(bytes)
 
-	json.Unmarshal([]byte(resp), &coinGekco)
-	krw := coinGekco.MarketData.CurrentPrice.Krw
+	json.Unmarshal([]byte(resp), &coingecko)
+	krw := coingecko.Osmosis.Krw
 	return krw
 }
