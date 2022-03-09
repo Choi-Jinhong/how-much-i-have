@@ -12,7 +12,6 @@ import (
 
 	"github.com/Choi-Jinhong/how-much-i-have/configuration"
 	"github.com/bwmarrin/discordgo"
-	"github.com/carlescere/scheduler"
 	"github.com/spf13/viper"
 )
 
@@ -80,6 +79,7 @@ func init() {
 
 func main() {
 	Session.AddHandler(messageCreate)
+	//Session.AddHandler(dailyCheck)
 
 	defer Session.Close()
 
@@ -103,11 +103,11 @@ func setRuntimeConfig() {
 	}
 }
 
+func dailyCheck() {
+
+}
+
 func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate) {
-	job := func() {
-		fmt.Printf("Time up !")
-		session.ChannelMessageSend(message.ChannelID, calculateOsmosis())
-	}
 	if session.State.User.ID == message.Author.ID {
 		return
 	}
@@ -117,8 +117,8 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 		session.ChannelMessageSend(message.ChannelID, calculateOsmosis())
 	}
 
-	if message.Content == "!Daily" {
-		scheduler.Every(9).Hours().Run(job)
+	if message.Content == "!pong" {
+		session.ChannelMessageSend(message.ChannelID, "ping!")
 	}
 }
 
