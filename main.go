@@ -118,7 +118,7 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 
 	if message.Content == "!Daily" {
-		scheduler.Every(9).Hours().Run(job)
+		scheduler.Every().At("01:00").Run(job)
 	}
 }
 
