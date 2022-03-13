@@ -78,7 +78,7 @@ func setRuntimeConfig() {
 
 func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate) {
 	job := func() {
-		fmt.Printf("Time up !")
+		fmt.Printf("Time up ! \n")
 		session.ChannelMessageSend(message.ChannelID, calculateOsmosis())
 	}
 	if session.State.User.ID == message.Author.ID {
@@ -86,7 +86,7 @@ func messageCreate(session *discordgo.Session, message *discordgo.MessageCreate)
 	}
 
 	if message.Content == "!Osmosis" {
-		fmt.Printf("Check Osmosis !!")
+		fmt.Printf("Check Osmosis !!\n")
 		session.ChannelMessageSend(message.ChannelID, calculateOsmosis())
 	}
 
